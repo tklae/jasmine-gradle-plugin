@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.github.dzhaughnroth:jasmine-gradle-plugin:0.5-tc"
+        classpath "com.github.tklae:jasmine-gradle-plugin:0.5-tc"
     }
 }
 

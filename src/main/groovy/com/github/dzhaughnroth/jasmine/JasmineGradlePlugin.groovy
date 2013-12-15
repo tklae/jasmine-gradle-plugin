@@ -28,10 +28,11 @@ class JasmineGradlePlugin implements Plugin<Project> {
         
         p.configurations.add("jasmineGradlePlugin");
         p.dependencies.add("jasmineGradlePlugin",
-                "com.github.dzhaughnroth:jasmine-gradle-plugin:${version}");
+                "com.github.tklae:jasmine-gradle-plugin:${version}");
         JasmineGeneratorTask jgentask = p.tasks.add( "jasmineGenerate",
             JasmineGeneratorTask.class );
         jgentask.defaultsFactory = config;
+        p.repositories.mavenLocal() //To enable local testing
 
         JasmineCopyTask jcopytask = p.tasks.add("jasmineCopy",
                 JasmineCopyTask.class);

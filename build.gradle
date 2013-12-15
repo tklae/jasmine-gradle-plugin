@@ -12,7 +12,8 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'idea'
 
-group = 'com.github.dzhaughnroth'
+//group = 'com.github.dzhaughnroth'
+group = 'com.github.tklae'
 version = '0.5-tc'
 
 task wrapper(type: Wrapper) {
