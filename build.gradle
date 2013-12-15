@@ -13,10 +13,10 @@ apply plugin: 'maven-publish'
 apply plugin: 'idea'
 
 group = 'com.github.dzhaughnroth'
-version = '0.5'
+version = '0.5-tc'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '1.9'
 }
 
 repositories {
@@ -40,6 +40,11 @@ publishing {
                 asNode().appendNode('description', 'Use Jasmine to test javascript both in site and as part of a build')
                 asNode().appendNode('url', 'https://github.com/dzhaughnroth/jasmine-gradle-plugin')
                 asNode().appendNode('inceptionYear', '2011')
+                // Dunno how to add this yet.
+                // scm {
+                //  url "http://github.com/dzhaughnroth/jasmine-gradle-plugin"
+                //  connection "scm:git://github.com/dzhaughnroth/jasmine-gradle-plugin"
+                //  developerConnection "scm:git://github.com/dzhaughnroth/jasmine-gradle-plugin"
             }
             from components.java
         }
@@ -78,7 +83,7 @@ task cleanPluginTestArea( type: GradleBuild ) {
     dependsOn publishToMavenLocal
     dir = "pluginTest"
     tasks = ["clean", "jasmineGenerate" ]
-    startParameter.projectProperties.put( "pluginVersion", "${version}" );
+    createSubTaskStartParameters(startParameter)
     startParameter.projectProperties.put( "anExclude", "" );
     doLast {
         assert !file( "${dir}/build" ).exists();
@@ -89,7 +94,7 @@ task pluginNotFailingTestTask( type: GradleBuild ) {
     dependsOn cleanPluginTestArea
     dir = "pluginTest"
     tasks = [ "check"]
-    startParameter.projectProperties.put( "pluginVersion", "${version}" );
+    createSubTaskStartParameters(startParameter)
     startParameter.projectProperties.put( "anExclude", "**/MultiRunner.html" );
     doLast {
         copyFile( file( "${dir}/build/jasmine-summary.html" ),
@@ -104,7 +109,7 @@ task pluginTestTask( type: GradleBuild ) {
     dependsOn cleanPluginTestArea
     dir = "pluginTest"
     tasks = [ "check"]
-    startParameter.projectProperties.put( "pluginVersion", "${version}" )
+    createSubTaskStartParameters(startParameter)
     startParameter.projectProperties.put( "anExclude", "" );
     doLast {
         copyFile( file( "${dir}/build/jasmine-summary.html" ),
@@ -118,10 +123,23 @@ task generatorTestTask( type: GradleBuild ) {
     dependsOn clearCache
     dir = "generatorTest"
     tasks = ["clean", "jasmineGenerate", "check"]
-    startParameter.projectProperties.put( "pluginVersion", "${version}" );
+    createSubTaskStartParameters(startParameter)
     doLast {
         checkDir( dir, 2, 1, 0, true );
     }
+}
+
+task debugBuildValues() {
+    println "Running check task"
+    println "Project group: ${project.group}"
+    println "Project name: ${project.name}"
+    println "Project version: ${version}"
+}
+
+def createSubTaskStartParameters(startParameter) {
+    startParameter.projectProperties.put( "pluginGroup", "${project.group}" );
+    startParameter.projectProperties.put( "pluginName", "${project.name}" );
+    startParameter.projectProperties.put( "pluginVersion", "${version}" );
 }
 
 def checkDir( dir, specsFailed, pagesFailed, pagesPassed, jslintFailed ) {
@@ -140,25 +158,11 @@ def checkDir( dir, specsFailed, pagesFailed, pagesPassed, jslintFailed ) {
     assert pagesPassed == (text =~ /Passed page/).size();
 }
 
+//Sometimes the check stage fails with a NullPointerException when doing a "gradle clean check", just run again with "gradle check"
+//If that doesn't work it sometimes helps to delete the local mvn repository branch for this project if you've uploaded the jar
+//via "gradle publishToMavenLocal"
+//Might be caused by http://issues.gradle.org/browse/GRADLE-2034
+check.dependsOn( debugBuildValues );
 check.dependsOn( pluginTestTask );
 check.dependsOn( pluginNotFailingTestTask );
 check.dependsOn( generatorTestTask );
-
-//apply plugin: 'maven-oss'
-//pomConfigurator.addDeveloper( "John Roth", "dzhaughnroth@sourceforge.net" )
-//pomConfigurator.gnuLicense();
-//pomConfigurator.configurePom( {
-//    it.pom {
-//       project {
-//         name "Jasmine Gradle Plugin"
-//         description "Use Jasmine to test javascript both in situ and as part of a build"
-//         url "https://github.com/dzhaughnroth/jasmine-gradle-plugin"
-//         inceptionYear "2011"
-//         scm {
-//           url "http://github.com/dzhaughnroth/jasmine-gradle-plugin"
-//           connection "scm:git://github.com/dzhaughnroth/jasmine-gradle-plugin"
-//           developerConnection "scm:git://github.com/dzhaughnroth/jasmine-gradle-plugin"
-//       }
-//    }
-//} } );
-

@@ -10,15 +10,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-package com.github.dzhaughnroth.jasmine;
-
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.tasks.testing.Test;
-import org.gradle.api.tasks.testing.testng.TestNGOptions;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.logging.LogLevel;
+package com.github.dzhaughnroth.jasmine
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.logging.LogLevel
 
 class JasmineGradlePlugin implements Plugin<Project> {
 

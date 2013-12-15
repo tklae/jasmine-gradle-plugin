@@ -4,8 +4,7 @@ buildscript {
         mavenCentral();
     }
     dependencies {
-        //Sometimes the check stage fails when doing a "gradle clean check", just run again with "gradle check"
-        classpath "com.github.dzhaughnroth:jasmine-gradle-plugin:${pluginVersion}"
+        classpath "${pluginGroup}:${pluginName}:${pluginVersion}"
     }
 }
 
