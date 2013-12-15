@@ -1,47 +1,69 @@
 import org.apache.tools.ant.filters.*
 
 buildscript {
-  repositories {
-     mavenCentral()
-  }
-  dependencies {
-     classpath "net.sourceforge.purrpackage:maven-oss-gradle-plugin:1.0"
-  }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
 }
 
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
-apply plugin: 'maven-oss'
+apply plugin: 'maven-publish'
+apply plugin: 'idea'
 
 group = 'com.github.dzhaughnroth'
 version = '0.5'
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.8'
+}
+
 repositories {
-   mavenCentral();
+    mavenLocal()
+    mavenCentral()
 }
 
 dependencies {
-	     compile "junit:junit:3.8.2"
-  groovy localGroovy()
-  compile "org.codehaus.groovy:groovy:1.7.8"
-  compile gradleApi()
-  compile "net.sourceforge.htmlunit:htmlunit:2.8"
+    compile gradleApi()
+    compile localGroovy()
+    compile "org.codehaus.groovy:groovy-all:2.2.1"
+    compile "net.sourceforge.htmlunit:htmlunit:2.8"
+    testCompile 'junit:junit:4.11'
+}
+
+publishing {
+    publications {
+        mavenCustom(MavenPublication) {
+            pom.withXml {
+                asNode().appendNode('name', 'Jasmine Gradle Plugin')
+                asNode().appendNode('description', 'Use Jasmine to test javascript both in site and as part of a build')
+                asNode().appendNode('url', 'https://github.com/dzhaughnroth/jasmine-gradle-plugin')
+                asNode().appendNode('inceptionYear', '2011')
+            }
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }
 
 afterEvaluate {
-        def prTasks = sourceSets.all.processResourcesTaskName.collect { tasks[it] };
-        prTasks.each( { it.configure( {
-                        filter( ReplaceTokens, tokens: [version: project.version] )
-        } )
-        } );        
+    def prTasks = sourceSets*.processResourcesTaskName.collect { tasks[it] };
+    prTasks.each({
+        it.configure({
+            filter(ReplaceTokens, tokens: [version: project.version])
+        })
+    });
 }
 
 task clearCache() {
-     doFirst {
+    doFirst {
         File f = file( "${System.getProperty("user.home")}/.gradle/cache/${project.group}/${project.name}" )
         println( "Deleting gradle cache at ${f.absolutePath}" );
         delete( f );
-     }
+    }
 
 }
 
@@ -51,92 +73,92 @@ def copyFile( from, to ) {
 }
 
 task cleanPluginTestArea( type: GradleBuild ) {
-        dependsOn test 
-        dependsOn install
-        dependsOn clearCache
-	dir = "pluginTest"
-	tasks = ["clean", "jasmineGenerate" ]
-	startParameter.projectProperties.put( "pluginVersion", "${version}" );
-	startParameter.projectProperties.put( "anExclude", "" );
-        doLast {
-                assert !file( "${dir}/build" ).exists();
-        }
+    dependsOn test
+    dependsOn clearCache
+    dependsOn publishToMavenLocal
+    dir = "pluginTest"
+    tasks = ["clean", "jasmineGenerate" ]
+    startParameter.projectProperties.put( "pluginVersion", "${version}" );
+    startParameter.projectProperties.put( "anExclude", "" );
+    doLast {
+        assert !file( "${dir}/build" ).exists();
+    }
 }
 
 task pluginNotFailingTestTask( type: GradleBuild ) {
-        dependsOn cleanPluginTestArea
-	dir = "pluginTest"
-	tasks = [ "check"]
-	startParameter.projectProperties.put( "pluginVersion", "${version}" );
-	startParameter.projectProperties.put( "anExclude", "**/MultiRunner.html" );
-        doLast {
-          copyFile( file( "${dir}/build/jasmine-summary.html" ),
-                    file( "${dir}/build/passingPluginTestTask-jasmine-summary.html" ) );
-          checkDir( dir, 0, 0, 1, false );
-        }
+    dependsOn cleanPluginTestArea
+    dir = "pluginTest"
+    tasks = [ "check"]
+    startParameter.projectProperties.put( "pluginVersion", "${version}" );
+    startParameter.projectProperties.put( "anExclude", "**/MultiRunner.html" );
+    doLast {
+        copyFile( file( "${dir}/build/jasmine-summary.html" ),
+                file( "${dir}/build/passingPluginTestTask-jasmine-summary.html" ) );
+        checkDir( dir, 0, 0, 1, false );
+    }
 }
 
 task pluginTestTask( type: GradleBuild ) {
-     dependsOn test 
-     dependsOn install
-     dependsOn clearCache
-     dependsOn cleanPluginTestArea
-     dir = "pluginTest"
-     tasks = [ "check"]
-     startParameter.projectProperties.put( "pluginVersion", "${version}" )
-     startParameter.projectProperties.put( "anExclude", "" );
-     doLast {
-          copyFile( file( "${dir}/build/jasmine-summary.html" ),
-                    file( "${dir}/build/failingPluginTestTask-jasmine-summary.html" ) );
-          checkDir( dir, 3, 1, 1, false );
-     }
+    dependsOn test
+    dependsOn clearCache
+    dependsOn cleanPluginTestArea
+    dir = "pluginTest"
+    tasks = [ "check"]
+    startParameter.projectProperties.put( "pluginVersion", "${version}" )
+    startParameter.projectProperties.put( "anExclude", "" );
+    doLast {
+        copyFile( file( "${dir}/build/jasmine-summary.html" ),
+                file( "${dir}/build/failingPluginTestTask-jasmine-summary.html" ) );
+        checkDir( dir, 3, 1, 1, false );
+    }
 }
 
 task generatorTestTask( type: GradleBuild ) {
-        dependsOn test 
-        dependsOn install
-        dependsOn clearCache
-        dir = "generatorTest"
-	tasks = ["clean", "jasmineGenerate", "check"]
-	startParameter.projectProperties.put( "pluginVersion", "${version}" );
-	doLast {
-	  checkDir( dir, 2, 1, 0, true );
-        }
+    dependsOn test
+    dependsOn clearCache
+    dir = "generatorTest"
+    tasks = ["clean", "jasmineGenerate", "check"]
+    startParameter.projectProperties.put( "pluginVersion", "${version}" );
+    doLast {
+        checkDir( dir, 2, 1, 0, true );
+    }
 }
 
 def checkDir( dir, specsFailed, pagesFailed, pagesPassed, jslintFailed ) {
-	def exists = file( "${dir}/build/jasmine.failures" ).exists();
-	assert exists == ( specsFailed > 0)
-	def jslintExists = file( "${dir}/build/jasmine.jslint.failures" ).exists();
-	assert jslintExists == jslintFailed;
-	assert file( "${dir}/build/jasmine" ).exists();
-        assert file( "${dir}/src/test/javascript/lib/MultiRunner.html" ).exists();
-        def f = file( "${dir}/build/jasmine-summary.html" );
-	assert f.exists();
-        def text = f.text;
-             
-        assert specsFailed == (text =~ /Spec.*FAILED/).size();
-        assert pagesFailed == (text =~ /FAILED page/).size();
-        assert pagesPassed == (text =~ /Passed page/).size();
+    def exists = file( "${dir}/build/jasmine.failures" ).exists();
+    assert exists == ( specsFailed > 0)
+    def jslintExists = file( "${dir}/build/jasmine.jslint.failures" ).exists();
+    assert jslintExists == jslintFailed;
+    assert file( "${dir}/build/jasmine" ).exists();
+    assert file( "${dir}/src/test/javascript/lib/MultiRunner.html" ).exists();
+    def f = file( "${dir}/build/jasmine-summary.html" );
+    assert f.exists();
+    def text = f.text;
+
+    assert specsFailed == (text =~ /Spec.*FAILED/).size();
+    assert pagesFailed == (text =~ /FAILED page/).size();
+    assert pagesPassed == (text =~ /Passed page/).size();
 }
 
 check.dependsOn( pluginTestTask );
 check.dependsOn( pluginNotFailingTestTask );
 check.dependsOn( generatorTestTask );
-pomConfigurator.addDeveloper( "John Roth", "dzhaughnroth@sourceforge.net" )
-pomConfigurator.gnuLicense();
-pomConfigurator.configurePom( {
-    it.pom {      
-       project {
-         name "Jasmine Gradle Plugin"
-         description "Use Jasmine to test javascript both in situ and as part of a build"
-         url "https://github.com/dzhaughnroth/jasmine-gradle-plugin"
-         inceptionYear "2011"
-         scm { 
-           url "http://github.com/dzhaughnroth/jasmine-gradle-plugin"
-           connection "scm:git://github.com/dzhaughnroth/jasmine-gradle-plugin"
-           developerConnection "scm:git://github.com/dzhaughnroth/jasmine-gradle-plugin"
-       }
-    }
-} } );
+
+//apply plugin: 'maven-oss'
+//pomConfigurator.addDeveloper( "John Roth", "dzhaughnroth@sourceforge.net" )
+//pomConfigurator.gnuLicense();
+//pomConfigurator.configurePom( {
+//    it.pom {
+//       project {
+//         name "Jasmine Gradle Plugin"
+//         description "Use Jasmine to test javascript both in situ and as part of a build"
+//         url "https://github.com/dzhaughnroth/jasmine-gradle-plugin"
+//         inceptionYear "2011"
+//         scm {
+//           url "http://github.com/dzhaughnroth/jasmine-gradle-plugin"
+//           connection "scm:git://github.com/dzhaughnroth/jasmine-gradle-plugin"
+//           developerConnection "scm:git://github.com/dzhaughnroth/jasmine-gradle-plugin"
+//       }
+//    }
+//} } );
 

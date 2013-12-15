@@ -1,20 +1,21 @@
 buildscript {
     repositories {
-	mavenLocal();
-	mavenCentral();
+        mavenLocal();
+        mavenCentral();
     }
     dependencies {
+        //Sometimes the check stage fails when doing a "gradle clean check", just run again with "gradle check"
         classpath "com.github.dzhaughnroth:jasmine-gradle-plugin:${pluginVersion}"
     }
 }
 
 repositories {
-     mavenLocal();
-     mavenCentral();
+    mavenLocal();
+    mavenCentral();
 }
 
-task clean( ) << {
-	delete( buildDir );
+task clean() << {
+    delete(buildDir);
 }
 
 task check() {
@@ -23,8 +24,8 @@ task check() {
 apply plugin: 'jasmineGradle'
 
 convention.plugins.jasmineGradlePlugin.failBuildOnSpecFailure = false;
-if ( "${anExclude}".length() > 0 ) {
-	convention.plugins.jasmineGradlePlugin.runnerExcludes.add( "${anExclude}" );
+if ("${anExclude}".length() > 0) {
+    convention.plugins.jasmineGradlePlugin.runnerExcludes.add("${anExclude}");
 }
 // meaningless.
-convention.plugins.jasmineGradlePlugin.runnerExcludes.add( "**/Ignored*" );
+convention.plugins.jasmineGradlePlugin.runnerExcludes.add("**/Ignored*");

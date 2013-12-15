@@ -15,3 +15,9 @@ Support for running Jasmine tests in a Gradle build. And more.
 * Built to play nice with others.
 
 Same licensing as Jasmine and JSLint.
+
+## Useful commands for development:
+
+* gradle publishToMavenLocal (publishes plugin to mvnlocal)
+* gradle publish (publishes to defined remote mvn)
+* gradle wrapper (to generate the wrapper for using the correct gradle version)

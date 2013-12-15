@@ -5,4 +5,30 @@ generatorTest/src/test/javascript
 generatorTest/src/test/javascript/lib
 generatorTest/src/test/javascript/SampleSpec.js
 generatorTest/src/test/javascript/SampleSpecRunner.html
-.gradle
+
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+#IntelliJ files
+.idea
+*.iml
+*.iws
+*.ipr
+
+#gradle
+*/build/
+*/out/
+out/
+.gradle/
+
+#osx
+**/*.DS_Store
+.DS_Store
+
+#other
+*.rpm
+*.swp
