@@ -188,7 +188,7 @@ jasmineGradle = (function()
                 } );
         return result;
     };
-    
+
     var getResultsAsText = function( includeTrace ) {
         var result = "";
         $.each( results, function( i, x ) {
@@ -200,6 +200,17 @@ jasmineGradle = (function()
                     };
                     result += "-----\n"; } );
         return result;
+    };
+
+    var getResultsAsXml = function () {
+        var result = [];
+        $.each( specRunners, function( i, x ) {
+            var iframe = $( "#frame" + i );
+            var reporter = iframe[0].contentWindow.xmlReporter;
+            result.push(reporter.result_);
+        } );
+        return result.join();
+
     };
 
     var sourceDisplay = function( path ) {
@@ -252,6 +263,7 @@ jasmineGradle = (function()
              buildDivsForSpecRunners:buildDivsForSpecRunners,
              runAllSpecs:runAllSpecs,
              getResultsAsText:getResultsAsText,
+             getResultsAsXml:getResultsAsXml,
              getJsLintResultsAsText:getJsLintResultsAsText,
              getResults:getResults,
              getStatus:getStatus,

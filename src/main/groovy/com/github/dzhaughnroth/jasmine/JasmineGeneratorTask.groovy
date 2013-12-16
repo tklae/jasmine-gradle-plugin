@@ -10,17 +10,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-package com.github.dzhaughnroth.jasmine;
-
-import javax.sound.sampled.TargetDataLine;
-
-import org.apache.tools.ant.util.LayoutPreservingProperties.LogicalLine;
-import org.gradle.api.logging.LogLevel;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.DefaultTask;
-import com.gargoylesoftware.htmlunit.*;
-import com.gargoylesoftware.htmlunit.html.*;
-
+package com.github.dzhaughnroth.jasmine
+import org.gradle.api.DefaultTask
+import org.gradle.api.logging.LogLevel
+import org.gradle.api.tasks.TaskAction
 /** If you need to custom configure this task, call initDefaults() first. */
 
 class JasmineGeneratorTask extends DefaultTask {
@@ -39,7 +32,8 @@ class JasmineGeneratorTask extends DefaultTask {
     static noclobber = [ "specRunners.js" ];
     static resources = [ "SampleSpecRunner.html", "SampleSpec.js" ];
     static libResources = [ "jasmine.css", "jasmine.js", "jasmine-html.js", "jasmine-reporters.js", 
-            "MIT.LICENSE", "jasmine-gradle.js", "jasmine-gradle.css", "webjslint.js", "jquery-1.6.1.min.js", "MultiRunner.html" ];
+            "MIT.LICENSE", "jasmine-gradle.js", "jasmine-gradle.css", "webjslint.js", "jquery-1.6.1.min.js",
+            "MultiRunner.html", "jasmine.junit_reporter.js" ];
 
     @TaskAction
 	def copyResources() {

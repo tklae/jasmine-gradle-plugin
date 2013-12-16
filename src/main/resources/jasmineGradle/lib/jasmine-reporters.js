@@ -1,7 +1,9 @@
 /*global apiReporter: true, jasmine: false */
 apiReporter = new jasmine.JsApiReporter();
+xmlReporter = new jasmine.JUnitXmlReporter()
 jasmine.getEnv().addReporter(apiReporter);
 jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+jasmine.getEnv().addReporter(xmlReporter);
 
 (function() {
 

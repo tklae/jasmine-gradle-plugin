@@ -10,14 +10,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-package com.github.dzhaughnroth.jasmine;
-
-import org.gradle.api.logging.LogLevel;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.DefaultTask;
-import com.gargoylesoftware.htmlunit.*;
-import com.gargoylesoftware.htmlunit.html.*;
-
+package com.github.dzhaughnroth.jasmine
+import org.gradle.api.DefaultTask
+import org.gradle.api.logging.LogLevel
+import org.gradle.api.tasks.TaskAction
 /** If you need to custom configure this task, call initDefaults() first. */
 
 class JasmineRunnerTask extends DefaultTask {
@@ -83,11 +79,14 @@ class JasmineRunnerTask extends DefaultTask {
 		}
         File failuresFile = new File( project.buildDir, MultiRunnerMain.FAILURES_FILE_NAME );
 		if ( failuresFile.exists() && failBuildOnSpecFailure ) {
-			throw new RuntimeException( "Jasmine Specs Failed; see build/jasmine-summary.html" );
+            File resultsFile = new File( project.buildDir, MultiRunnerMain.XML_REPORT_FILE_NAME );
+            String fileContents = resultsFile.text
+            throw new RuntimeException( "Jasmine Specs Failed; see build/jasmine-summary.html" + fileContents);
 		}
         File jslintFailuresFile = new File( project.buildDir, MultiRunnerMain.JSLINT_FAILURES_FILE_NAME );
         if ( jslintFailuresFile.exists() && failBuildOnJslintFailure ) {
-            throw new RuntimeException( "JSLint checks failed; see build/jasmine-summary.html" );
+            String fileContents = jslintFailuresFile.text
+            throw new RuntimeException( "JSLint checks failed; see build/jasmine-summary.html");
         }
 	}
 }
