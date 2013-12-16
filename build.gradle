@@ -12,9 +12,8 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'idea'
 
-//group = 'com.github.dzhaughnroth'
 group = 'com.github.tklae'
-version = '0.5-tc'
+version = '0.6'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.9'
@@ -37,15 +36,20 @@ publishing {
     publications {
         mavenCustom(MavenPublication) {
             pom.withXml {
-                asNode().appendNode('name', 'Jasmine Gradle Plugin')
-                asNode().appendNode('description', 'Use Jasmine to test javascript both in site and as part of a build')
-                asNode().appendNode('url', 'https://github.com/dzhaughnroth/jasmine-gradle-plugin')
-                asNode().appendNode('inceptionYear', '2011')
-                // Dunno how to add this yet.
-                // scm {
-                //  url "http://github.com/dzhaughnroth/jasmine-gradle-plugin"
-                //  connection "scm:git://github.com/dzhaughnroth/jasmine-gradle-plugin"
-                //  developerConnection "scm:git://github.com/dzhaughnroth/jasmine-gradle-plugin"
+                def pomDefinition = asNode()
+                pomDefinition.appendNode('name', 'Jasmine Gradle Plugin')
+                pomDefinition.appendNode('description', 'Use Jasmine to test javascript both in site and as part of a build. Biggest thanks to dzhaughnroth for coming up with this!')
+                pomDefinition.appendNode('url', 'https://github.com/tklae/jasmine-gradle-plugin')
+                pomDefinition.appendNode('inceptionYear', '2011')
+
+                def scmFragment = '''
+                <scm>
+                    <url>https://github.com/tklae/jasmine-gradle-plugin</url>
+                    <connection>scm:git://github.com/tklae/jasmine-gradle-plugin</connection>
+                    <developerConnection>scm:git://github.com/tklae/jasmine-gradle-plugin</developerConnection>
+                </scm>'''
+                scmNode = new XmlParser(false, true).parseText(scmFragment)
+                pomDefinition.append(scmNode)
             }
             from components.java
         }
