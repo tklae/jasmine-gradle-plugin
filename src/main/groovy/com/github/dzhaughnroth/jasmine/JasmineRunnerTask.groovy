@@ -81,7 +81,8 @@ class JasmineRunnerTask extends DefaultTask {
 		if ( failuresFile.exists() && failBuildOnSpecFailure ) {
             File resultsFile = new File( project.buildDir, MultiRunnerMain.XML_REPORT_FILE_NAME );
             String fileContents = resultsFile.text
-            throw new RuntimeException( "Jasmine Specs Failed; see build/jasmine-summary.html" + fileContents);
+            def failures = getFailures(fileContents)
+            throw new RuntimeException( "Jasmine Specs Failed; see build/jasmine-summary.html for details\n--> FAILURE: " + failures.join('\n--> FAILURE: '));
 		}
         File jslintFailuresFile = new File( project.buildDir, MultiRunnerMain.JSLINT_FAILURES_FILE_NAME );
         if ( jslintFailuresFile.exists() && failBuildOnJslintFailure ) {
@@ -89,4 +90,14 @@ class JasmineRunnerTask extends DefaultTask {
             throw new RuntimeException( "JSLint checks failed; see build/jasmine-summary.html");
         }
 	}
+
+    def getFailures(String xmlString) {
+        def xml = new XmlSlurper().parseText(xmlString)
+        List failureNodes = xml.'**'.grep {
+            it.name() == 'failure' && it.parent().name() == 'testcase'
+        }
+        def failures = []
+        failureNodes.each { failures << "${it.parent().'@classname'}.${it.parent().'@name'}: ${it.text()}" }
+        return failures
+    }
 }
