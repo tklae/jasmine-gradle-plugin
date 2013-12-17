@@ -33,7 +33,7 @@ class JasmineGeneratorTask extends DefaultTask {
     static resources = [ "SampleSpecRunner.html", "SampleSpec.js" ];
     static libResources = [ "jasmine.css", "jasmine.js", "jasmine-html.js", "jasmine-reporters.js", 
             "MIT.LICENSE", "jasmine-gradle.js", "jasmine-gradle.css", "webjslint.js", "jquery-1.6.1.min.js",
-            "MultiRunner.html", "jasmine.junit_reporter.js" ];
+            "MultiRunner.html", "jasmine.custom.junit_reporter.js" ];
 
     @TaskAction
 	def copyResources() {
